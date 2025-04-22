@@ -18,6 +18,7 @@ def load_model():
         
         device = "cuda" if torch.cuda.is_available() else "cpu"
         st.info(f"Using device: {device}") # 使用デバイスを表示
+        st.info(f"Model load: {MODEL_NAME}")
         pipe = pipeline(
             "text-generation",
             model=MODEL_NAME,
