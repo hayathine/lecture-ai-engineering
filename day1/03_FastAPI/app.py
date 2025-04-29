@@ -51,10 +51,13 @@ class SimpleGenerationRequest(BaseModel):
     do_sample: Optional[bool] = True
     temperature: Optional[float] = 0.7
     top_p: Optional[float] = 0.9
+    # 会話履歴を残す
+    conversation_history: Optional[list] = [] 
 
 class GenerationResponse(BaseModel):
     generated_text: str
     response_time: float
+    conversation_history: list
 
 # --- モデル関連の関数 ---
 # モデルのグローバル変数
@@ -171,10 +174,15 @@ async def generate_simple(request: SimpleGenerationRequest):
         start_time = time.time()
         print(f"シンプルなリクエストを受信: prompt={request.prompt[:100]}..., max_new_tokens={request.max_new_tokens}")  # 長いプロンプトは切り捨て
 
+        # プロンプトに会話履歴を追加
+        input = request.prompt
+        if request.conversation_history:
+            input = ','.join(request.conversation_history) + input
+
         # プロンプトテキストで直接応答を生成
         print("モデル推論を開始...")
         outputs = model(
-            request.prompt,
+            input,
             max_new_tokens=request.max_new_tokens,
             do_sample=request.do_sample,
             temperature=request.temperature,
@@ -186,13 +194,17 @@ async def generate_simple(request: SimpleGenerationRequest):
         assistant_response = extract_assistant_response(outputs, request.prompt)
         print(f"抽出されたアシスタント応答: {assistant_response[:100]}...")  # 長い場合は切り捨て
 
+        conversation_history=request.conversation_history
+        conversation_history.append(request.prompt)
+
         end_time = time.time()
         response_time = end_time - start_time
         print(f"応答生成時間: {response_time:.2f}秒")
 
         return GenerationResponse(
             generated_text=assistant_response,
-            response_time=response_time
+            response_time=response_time,
+            conversation_history=conversation_history
         )
 
     except Exception as e:

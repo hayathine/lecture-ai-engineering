@@ -38,6 +38,7 @@ class LLMClient:
             temperature (float, optional): 温度パラメータ
             top_p (float, optional): top-p サンプリングのパラメータ
             do_sample (bool, optional): サンプリングを行うかどうか
+            conversation_history(str, optional): 会話履歴を残す文字列
         
         Returns:
             dict: 生成結果
@@ -47,7 +48,8 @@ class LLMClient:
             "max_new_tokens": max_new_tokens,
             "temperature": temperature,
             "top_p": top_p,
-            "do_sample": do_sample
+            "do_sample": do_sample,
+            "conversation_history": conversation_history
         }
         
         start_time = time.time()
