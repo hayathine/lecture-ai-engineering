@@ -52,12 +52,12 @@ class SimpleGenerationRequest(BaseModel):
     temperature: Optional[float] = 0.7
     top_p: Optional[float] = 0.9
     # 会話履歴を残す
-    conversation_history: Optional[list] = [] 
+    conversation_history: list[str] = [] 
 
 class GenerationResponse(BaseModel):
     generated_text: str
     response_time: float
-    conversation_history: list
+    conversation_history: list[str]
 
 # --- モデル関連の関数 ---
 # モデルのグローバル変数
@@ -196,6 +196,7 @@ async def generate_simple(request: SimpleGenerationRequest):
 
         conversation_history=request.conversation_history
         conversation_history.append(request.prompt)
+        conversation_history.append(assistant_response)
 
         end_time = time.time()
         response_time = end_time - start_time
